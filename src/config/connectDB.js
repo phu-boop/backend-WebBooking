@@ -8,7 +8,7 @@ const sequelize = new Sequelize('booking_mysql', 'root', null , {
 });
 
 let connectDB = async () => {
-    try {
+    try {   
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
     } catch (error) {
