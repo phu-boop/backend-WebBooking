@@ -21,9 +21,22 @@ let DisplayCRUD = async (req, res) => {
         dataUser: user,
     });
 }
+let EditCRUD = async (req, res) => {
+    let user = await CRUDServices.getUserById(req.query.id); // Lấy thông tin người dùng theo ID từ query
+    return res.render('editCRUD.ejs', {
+        dataUser: user,
+    });
+}
+let PutCRUD = async (req, res) => {
+    let data = req.body; // Lấy dữ liệu từ form
+    await CRUDServices.updateUserData(data); // Gọi hàm cập nhật người dùng từ CRUDServices
+    return res.redirect('/get-crud'); // Chuyển hướng về trang hiển thị danh sách người dùng
+}
 module.exports = {
     DisplayCRUD: DisplayCRUD,
     getCRUD: getCRUD,
     getHomepage: getHomepage,
     postCRUD: postCRUD,
+    EditCRUD: EditCRUD,
+    PutCRUD: PutCRUD,
 }

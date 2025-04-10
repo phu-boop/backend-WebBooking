@@ -36,6 +36,7 @@
                 <th>Phone Number</th>
                 <th>Gender</th>
                 <th>Role ID</th>
+                <th>Quản lý</th>
             </tr>
         </thead>
         <tbody>
@@ -50,6 +51,10 @@
                         <td><%= user.phonenumber %></td>
                         <td><%= user.gender ? 'Male' : 'Female' %></td>
                         <td><%= user.roleId %></td>
+                        <td>
+                            <a href="/edit-crud?id=<%= user.id %>">Edit</a> |
+                            <a href="/delete-crud?id=<%= user.id %>" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                        </td>
                     </tr>
                 <% }) %>
             <% } else { %>
