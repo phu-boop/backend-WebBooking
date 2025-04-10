@@ -14,7 +14,15 @@ let postCRUD = async (req, res) => {
         return res.end('error'); // Trả về lỗi nếu có
     }
 };
+let DisplayCRUD = async (req, res) => {
+    let user = await CRUDServices.getAllUser();
+    console.log(user); 
+    return res.render('displayCRUD.ejs', {
+        dataUser: user,
+    });
+}
 module.exports = {
+    DisplayCRUD: DisplayCRUD,
     getCRUD: getCRUD,
     getHomepage: getHomepage,
     postCRUD: postCRUD,
