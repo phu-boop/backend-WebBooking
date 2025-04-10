@@ -32,6 +32,15 @@ let PutCRUD = async (req, res) => {
     await CRUDServices.updateUserData(data); // Gọi hàm cập nhật người dùng từ CRUDServices
     return res.redirect('/get-crud'); // Chuyển hướng về trang hiển thị danh sách người dùng
 }
+let DeleteCRUD = async (req, res) => {
+    let userId = req.query.id; // Lấy ID người dùng từ query
+    if (userId) {
+        await CRUDServices.deleteUserById(userId);
+        return res.redirect('get-crud') // Gọi hàm xóa người dùng từ CRUDServices
+    } else {
+        console.log('User not found'); // In thông báo nếu không tìm thấy người dùng
+    }
+}
 module.exports = {
     DisplayCRUD: DisplayCRUD,
     getCRUD: getCRUD,
@@ -39,4 +48,5 @@ module.exports = {
     postCRUD: postCRUD,
     EditCRUD: EditCRUD,
     PutCRUD: PutCRUD,
+    DeleteCRUD: DeleteCRUD,
 }
