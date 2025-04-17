@@ -1,5 +1,6 @@
 import db from '../models/index';
-import bcrypt from 'bcryptjs';
+import bcrypt, { hash } from 'bcryptjs';
+const salt = bcrypt.genSaltSync(10);
 let handleUserLogin = (email, password) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -78,7 +79,130 @@ let getAllUsers = (userId) => {
         }
     });
 }
+let createNewUser = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let emailExist = await checkUserEmail(data.email);
+            if(emailExist === true) {
+                return resolve({
+                    errCode: 1,
+                    errMessage: 'Email already exists!',
+                }); 
+            }
+            let hashUserPassword = await bcrypt.hashSync(data.password, salt);
+            let creteUser = await db.User.create({
+                email: data.email,
+                password: hashUserPassword,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                address: data.address,
+                phonenumber: data.phonenumber,
+                gender: data.gender === '1' ? true : false,
+                roleId: data.roleId,
+            });
+            if (creteUser) {
+                resolve({
+                    errCode: 0,
+                    message: 'ok',
+                });
+            }
+        }catch (e) {
+            reject(e);
+        }
+    });
+}
+let getUserById = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let user = await db.User.findOne({
+                where: { id: userId },
+                attributes: {
+                    exclude: ['password'],
+                },
+            });
+            if (user) {
+                resolve(user);
+            } else {
+                resolve({});
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+let updateUserData = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let emailExist = await checkUserEmail(data.email);
+            if (emailExist === true) {
+                return resolve({
+                    errCode: 1,
+                    errMessage: 'Email already exists!',
+                });
+            }
+            let user = await db.User.findOne({
+                where: { id: data.id },
+            });
+            if (!user) {
+                return resolve({
+                    errCode: 2,
+                    errMessage: 'User not found!',
+                });
+            }
+            let putUser = await db.User.update(
+                {
+                    email: data.email,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    address: data.address,
+                    phonenumber: data.phonenumber,
+                    gender: data.gender === '1' ? true : false,
+                    roleId: data.roleId,
+                },
+                {
+                    where: { id: data.id }, // Điều kiện where để xác định bản ghi
+                }
+            );
+            if (putUser) {
+                resolve({
+                    errCode: 0,
+                    message: 'ok',
+                });
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+let deleteUserById = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let user = await db.User.findOne({
+                where: { id: userId },
+            });
+            if(!user){
+                resolve({
+                    errCode: 2,
+                    errMessage: 'User not found!',
+                });
+            }
+            await db.User.destroy({
+                where: { id: userId },
+            });
+            resolve({
+                errCode: 0,
+                message: 'ok',
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
+    createNewUser: createNewUser,
+    getUserById: getUserById,
+    updateUserData: updateUserData,
+    deleteUserById: deleteUserById,
 };
