@@ -1,14 +1,13 @@
 import UserServices from '../services/UserServices';
 let handleLogin = async (req, res) => {
     let email = req.body.email;
-    let password = req.body.password;
-    if(!email || !password){
+    if(!email){
         return res.status(500).json({
             errCode: 1 ,
             message: 'Missing inputs parameter'
         });
     }
-    let userData = await UserServices.handleUserLogin(email, password);
+    let userData = await UserServices.handleUserLogin(email);
     return res.status(200).json({
         errCode: userData.errCode,
         message: userData.errMessage,

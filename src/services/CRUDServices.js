@@ -9,22 +9,21 @@ let createNewUser = async (data) => {
             let hashPasswordFromBcrypt = await hashUserPassword(data.password);
             await db.User.create({
                 email: data.email,
-                password: hashPasswordFromBcrypt,
-                firstName: data.firstName,
-                lastName: data.lastName,
+                password_hash: hashPasswordFromBcrypt,
+                first_name: data.firstName,
+                last_name: data.lastName,
                 address: data.address,
-                phonenumber: data.phonenumber,
-                gender: data.gender === '1' ? true : false,
-                roleId: data.roleId,
+                phone: data.phonenumber,
+                role: data.roleId,
+                business_name: data.business_name,
+                business_license: data.business_license,
             });
             resolve('Create new user succeed!');
         } catch (e) {
             reject(e);
-        };
+        }
     });
-}
-
-
+};
 
 let hashUserPassword = (password) => {
     return new Promise(async (resolve, reject) => {
@@ -34,9 +33,8 @@ let hashUserPassword = (password) => {
         } catch (e) {
             reject(e);
         }
-    }
-    );
-}
+    });
+};
 
 let getAllUser = () => {
     return new Promise(async (resolve, reject) => {
@@ -49,7 +47,7 @@ let getAllUser = () => {
             reject(e);
         }
     });
-}
+};
 
 let getUserById = (userId) => {
     return new Promise(async (resolve, reject) => {
@@ -63,7 +61,7 @@ let getUserById = (userId) => {
             reject(e);
         }
     });
-}
+};
 
 let updateUserData = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -71,14 +69,15 @@ let updateUserData = (data) => {
             let user = await db.User.findOne({
                 where: { id: data.id },
             });
-            if(user){
+            if (user) {
                 user.email = data.email;
-                user.firstName = data.firstName;
-                user.lastName = data.lastName;
+                user.first_name = data.firstName;
+                user.last_name = data.lastName;
                 user.address = data.address;
-                user.phonenumber = data.phonenumber;
-                user.gender = data.gender === '1' ? true  : false;
-                user.roleId = data.roleId ;
+                user.phone = data.phonenumber;
+                user.role = data.roleId;
+                user.business_name = data.business_name;
+                user.business_license = data.business_license;
                 await user.save();
                 let allUsers = await db.User.findAll();
                 resolve(allUsers);
@@ -87,7 +86,7 @@ let updateUserData = (data) => {
             reject(e);
         }
     });
-}
+};
 
 let deleteUserById = (userId) => {
     return new Promise(async (resolve, reject) => {
@@ -98,12 +97,13 @@ let deleteUserById = (userId) => {
             if (user) {
                 await user.destroy();
             }
-            resolve("ok");
+            resolve('ok');
         } catch (e) {
             reject(e);
         }
     });
-}
+};
+
 module.exports = {
     createNewUser: createNewUser,
     getAllUser: getAllUser,

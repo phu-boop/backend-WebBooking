@@ -1,47 +1,31 @@
 import db from '../models/index';
-import bcrypt, { hash } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 const salt = bcrypt.genSaltSync(10);
-let handleUserLogin = (email, password) => {
+
+let handleUserLogin = (email) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let userData = {}
+            let userData = {};
             let isExist = await checkUserEmail(email);
-            if (isExist){
-                let user = await db.User.findOne({
-                    attributes: ['email', 'roleId', 'password'],
-                    where: { email: email },
-                    raw: true,
-                });
-                if (user) {
-                    let check = await bcrypt.compareSync(password, user.password);
-                    if (check) {
-                        userData.errCode = 0;
-                        userData.errMessage = 'ok';
-                        delete user.password;
-                        userData.user = user;
-                    } else {
-                        userData.errCode = 3;
-                        userData.errMessage = 'Wrong password!';
-                    }
-                } else {
-                    userData.errCode = 2;
-                    userData.errMessage = 'User not found!';
-                }
+            if (!isExist) {
+                userData.errCode = 0;
+                userData.errMessage = 'Email not Register!';
             }else{
-                userData.errCode = 1;
-                userData.errMessage = 'Email is not exist in your system. Please try other email!';
+                userData.errCode = 0;
+                userData.errMessage = 'Email Registered!';
             }
             resolve(userData);
         } catch (e) {
             reject(e);
         }
     });
-}
+};
 
 let checkUserEmail = (userEmail) => {
     return new Promise(async (resolve, reject) => {
         try {
             let user = await db.User.findOne({
+                attributes: ['email'],
                 where: { email: userEmail },
             });
             if (user) {
@@ -53,7 +37,8 @@ let checkUserEmail = (userEmail) => {
             reject(e);
         }
     });
-}
+};
+
 let getAllUsers = (userId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -61,7 +46,7 @@ let getAllUsers = (userId) => {
             if (userId === 'ALL') {
                 users = await db.User.findAll({
                     attributes: {
-                        exclude: ['password'],
+                        exclude: ['password_hash'],
                     },
                 });
             }
@@ -69,7 +54,7 @@ let getAllUsers = (userId) => {
                 users = await db.User.findOne({
                     where: { id: userId },
                     attributes: {
-                        exclude: ['password'],
+                        exclude: ['password_hash'],
                     },
                 });
             }
@@ -78,46 +63,49 @@ let getAllUsers = (userId) => {
             reject(e);
         }
     });
-}
+};
+
 let createNewUser = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             let emailExist = await checkUserEmail(data.email);
-            if(emailExist === true) {
+            if (emailExist === true) {
                 return resolve({
                     errCode: 1,
                     errMessage: 'Email already exists!',
-                }); 
+                });
             }
             let hashUserPassword = await bcrypt.hashSync(data.password, salt);
-            let creteUser = await db.User.create({
+            let createUser = await db.User.create({
                 email: data.email,
-                password: hashUserPassword,
-                firstName: data.firstName,
-                lastName: data.lastName,
+                password_hash: hashUserPassword,
+                first_name: data.first_name,
+                last_name: data.last_name,
+                phone: data.phone,
                 address: data.address,
-                phonenumber: data.phonenumber,
-                gender: data.gender === '1' ? true : false,
-                roleId: data.roleId,
+                role: data.role,
+                business_name: data.business_name,
+                business_license: data.business_license,
             });
-            if (creteUser) {
+            if (createUser) {
                 resolve({
                     errCode: 0,
                     message: 'ok',
                 });
             }
-        }catch (e) {
+        } catch (e) {
             reject(e);
         }
     });
-}
+};
+
 let getUserById = (userId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let user = await db.User.findOne({
                 where: { id: userId },
                 attributes: {
-                    exclude: ['password'],
+                    exclude: ['password_hash'],
                 },
             });
             if (user) {
@@ -129,7 +117,8 @@ let getUserById = (userId) => {
             reject(e);
         }
     });
-}
+};
+
 let updateUserData = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -152,15 +141,16 @@ let updateUserData = (data) => {
             let putUser = await db.User.update(
                 {
                     email: data.email,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    phone: data.phone,
                     address: data.address,
-                    phonenumber: data.phonenumber,
-                    gender: data.gender === '1' ? true : false,
-                    roleId: data.roleId,
+                    role: data.role,
+                    business_name: data.business_name,
+                    business_license: data.business_license,
                 },
                 {
-                    where: { id: data.id }, // Điều kiện where để xác định bản ghi
+                    where: { id: data.id },
                 }
             );
             if (putUser) {
@@ -174,13 +164,14 @@ let updateUserData = (data) => {
         }
     });
 };
+
 let deleteUserById = (userId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let user = await db.User.findOne({
                 where: { id: userId },
             });
-            if(!user){
+            if (!user) {
                 resolve({
                     errCode: 2,
                     errMessage: 'User not found!',
@@ -197,7 +188,8 @@ let deleteUserById = (userId) => {
             reject(e);
         }
     });
-}
+};
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
