@@ -1,6 +1,7 @@
 import express from 'express';
 import homeController from '../controllers/homeController';
 import userController from '../controllers/userController';
+import emailController from '../controllers/emailController';
 let router = express.Router();
 let initWebRoutes = (app) => {
     router.get('/', homeController.getHomepage);
@@ -17,6 +18,8 @@ let initWebRoutes = (app) => {
     router.get('/api/delete-user', userController.handleDeleteUser);
     //
     router.post('/api/login', userController.handleLogin);
+    router.post('/api/send-email', emailController.handleSendEmail);
+    router.get('/api/get-otp', emailController.handleVerifyOTP);
     return app.use('/', router);
 
 }
