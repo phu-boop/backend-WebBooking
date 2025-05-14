@@ -19,7 +19,7 @@ let initWebRoutes = (app) => {
     //
     router.post('/api/login', userController.handleLogin);
     router.post('/api/send-email', emailController.handleSendEmail);
-    router.get('/api/get-otp', emailController.handleVerifyOTP);
+    router.post('/api/verify-email', emailController.handleVerifyOTP);
     return app.use('/', router);
 
 }

@@ -97,11 +97,11 @@ module.exports = {
 
 
 // Test thử
-(async () => {
-  const userId = 'user123';
-  const otp = await generateOTP(userId);
-  console.log(`Generated OTP: ${otp}`);
+// (async () => {
+//   const userId = 'user123';
+//   const otp = await generateOTP(userId);
+//   console.log(`Generated OTP: ${otp}`);
 
-  const result = await verifyOTP(userId, otp); // test đúng
-  console.log(result);
-})();
+//   const result = await verifyOTP(userId, otp); // test đúng
+//   console.log(result);
+// })();

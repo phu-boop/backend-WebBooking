@@ -1,4 +1,4 @@
-import { sendMail , createHtmlOTP ,VerifyOTP } from '../services/SendmailServices';
+import { sendMail , createHtmlOTP ,verifyOTP } from '../services/SendmailServices';
 
 let handleSendEmail = async (req, res) => {
   const { to } = req.body;
@@ -21,14 +21,14 @@ let handleSendEmail = async (req, res) => {
 };
 
 let handleVerifyOTP = async (req, res) => {
-    const { otp } = req.query;
+    const { otp } = req.body;
     if (!otp) {
         return res.status(400).json({
         errCode: 1,
         message: 'Missing OTP parameter'
         });
     }
-    if ( await VerifyOTP(otp)) {
+    if ( await verifyOTP(otp)) {
         return res.status(200).json({
         errCode: 0,
         message: 'OTP verified successfully!'
