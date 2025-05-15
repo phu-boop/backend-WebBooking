@@ -2,6 +2,7 @@ import express from 'express';
 import homeController from '../controllers/homeController';
 import userController from '../controllers/userController';
 import emailController from '../controllers/emailController';
+import handleLoginWithApp from '../controllers/facebookController';
 let router = express.Router();
 let initWebRoutes = (app) => {
     router.get('/', homeController.getHomepage);
@@ -20,6 +21,7 @@ let initWebRoutes = (app) => {
     router.post('/api/login', userController.handleLogin);
     router.post('/api/send-email', emailController.handleSendEmail);
     router.post('/api/verify-email', emailController.handleVerifyOTP);
+    router.get('/api/facebook-login', handleLoginWithApp.facebookLogin);
     return app.use('/', router);
 
 }

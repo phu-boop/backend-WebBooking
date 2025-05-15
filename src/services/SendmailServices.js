@@ -41,14 +41,28 @@ var sendMail = (to, subject, htmlContent) => {
 };
 
 
-
-// Hàm tạo và lưu OTP
+// Hàm tạo mã OTP và lưu vào Redis
 async function generateOTP(userId) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const redisKey = `otp:${userId}`;
-  const ttl = 600; // 10 phút
-  await redis.setex(redisKey, ttl, otp);
-  return otp;
+  const ttl = 60; // 1 phút
+
+  try {
+    // Lưu OTP vào Redis
+    await redis.setex(redisKey, ttl, otp);
+
+    // Kiểm tra xem OTP đã được lưu thành công chưa
+    const storedOTP = await redis.get(redisKey);
+    if (storedOTP === otp) {
+      console.log(`OTP ${otp} for user ${userId} stored successfully in Redis`);
+      return otp;
+    } else {
+      throw new Error('Failed to store OTP in Redis: Stored value does not match');
+    }
+  } catch (err) {
+    console.error('Error in generateOTP:', err.message);
+    throw new Error('Could not generate and store OTP');
+  }
 }
 async function createHtmlOTP(email) {
     const otp = await generateOTP(email); // Tạo mã OTP
@@ -73,20 +87,22 @@ async function createHtmlOTP(email) {
     `;
     return { htmlContent }; 
 }
-// Hàm xác thực OTP
 async function verifyOTP(userId, enteredOTP) {
   const redisKey = `otp:${userId}`;
   const storedOTP = await redis.get(redisKey);
+  console.log('Stored OTP:', storedOTP);
+  console.log('Entered OTP:', enteredOTP);
+  console.log("email", userId);
 
   if (!storedOTP) {
-    return { success: false, message: 'OTP không tồn tại hoặc đã hết hạn' };
+    return { success: false, message: 'OTP does not exist or has expired' };
   }
 
   if (storedOTP === enteredOTP) {
     await redis.del(redisKey);
-    return { success: true, message: 'Xác thực thành công' };
+    return { success: true, message: 'Authentication successful' };
   } else {
-    return { success: false, message: 'OTP không đúng' };
+    return { success: false, message: 'OTP is incorrect' };
   }
 }
 module.exports = { 
